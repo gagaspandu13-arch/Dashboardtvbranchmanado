@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alfamidi TV Dashboard - Executive View</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0B0F19;
+      color: #F8FAFC;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Ambient Background Orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.22;
+      pointer-events: none;
+      z-index: 0;
+      animation: floatOrb 18s ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 500px; height: 500px; background: #00F5D4; top: -100px; right: -100px; }
+    .orb-2 { width: 600px; height: 600px; background: #3B82F6; bottom: -150px; left: -100px; animation-delay: -5s; }
+    .orb-3 { width: 450px; height: 450px; background: #EC4899; top: 40%; left: 40%; animation-delay: -9s; }
+
+    @keyframes floatOrb {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(40px, 50px) scale(1.1); }
+    }
+
+    /* Glassmorphism Cards */
+    .glass-panel {
+      background: rgba(17, 24, 39, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 12px 32px 0 rgba(0, 0, 0, 0.45);
+    }
+
+    /* SUDAH GO Badge Stamp */
+    .stamp-go {
+      position: absolute;
+      top: 12%;
+      right: 5%;
+      transform: rotate(-10deg);
+      border: 5px solid #00E676;
+      color: #00E676;
+      font-weight: 900;
+      font-size: 2.2rem;
+      letter-spacing: 0.18em;
+      padding: 0.4rem 1.6rem;
+      text-transform: uppercase;
+      border-radius: 16px;
+      text-shadow: 0 0 18px rgba(0, 230, 118, 0.7);
+      box-shadow: 0 0 25px rgba(0, 230, 118, 0.4), inset 0 0 15px rgba(0, 230, 118, 0.25);
+      pointer-events: none;
+      z-index: 30;
+      background: rgba(11, 15, 25, 0.92);
+      animation: stampPop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes stampPop {
+      0% { opacity: 0; transform: scale(2.8) rotate(-25deg); }
+      100% { opacity: 1; transform: scale(1) rotate(-10deg); }
+    }
+
+    /* Credits scroll for Slide 2 (AHO) */
+    .aho-scroll-viewport {
+      overflow: hidden;
+      position: relative;
+      height: calc(100vh - 250px);
+    }
+
+    .aho-scroll-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      animation: scrollCredits 110s linear infinite;
+    }
+
+    .aho-scroll-viewport:hover .aho-scroll-content {
+      animation-play-state: paused;
+    }
+
+    @keyframes scrollCredits {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-50%); }
+    }
+
+    ::-webkit-scrollbar { display: none; }
+    * { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .text-neon-cyan { color: #00F5D4; }
+    .bg-neon-cyan { background-color: #00F5D4; }
+    
+    .text-neon-green { color: #00E676; }
+    .bg-neon-green { background-color: #00E676; }
+    
+    .text-neon-yellow { color: #FFD166; }
+    .bg-neon-yellow { background-color: #FFD166; }
+
+    .text-neon-red { color: #FF4D6D; }
+    .bg-neon-red { background-color: #FF4D6D; }
+
+    .pulse-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: #00E676;
+      box-shadow: 0 0 10px #00E676;
+      animation: pulseGlow 1.8s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 230, 118, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); }
+    }
+  </style>
+</head>
+
+<body class="flex flex-col h-screen w-screen p-4 text-slate-100 relative overflow-hidden">
+
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <header class="flex items-center justify-between pb-3 border-b border-slate-800/80 mb-3 h-[68px] shrink-0 z-10 relative">
+    <div class="flex items-center space-x-3.5">
+      <img src="Logo Midi.png" alt="Logo Midi" class="h-11 w-auto max-w-[130px] object-contain drop-shadow-lg rounded-xl" onerror="if(!this.dataset.triedJpg){this.dataset.triedJpg=true;this.src='Logo Midi.jpg';}else if(!this.dataset.triedSvg){this.dataset.triedSvg=true;this.src='Logo Midi.svg';}">
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-xl md:text-2xl font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+            ALFAMIDI TV DASHBOARD
+          </h1>
+          <span class="px-2 py-0.5 text-[9px] font-black bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/40 rounded-full uppercase tracking-widest" id="mode-badge">CONNECTING...</span>
+        </div>
+        <p class="text-[11px] font-bold text-slate-400 tracking-wider uppercase mt-0.5" id="current-slide-title">SLIDE 1: PLAN GO</p>
+      </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="flex items-center space-x-2 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 shadow-2xl backdrop-blur-md">
+      <button id="btn-auto" onclick="enableAutoMode()" class="px-3.5 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 bg-neon-cyan text-slate-950 shadow-lg shadow-neon-cyan/20">
+        <i data-lucide="play-circle" class="w-4 h-4"></i> AUTO SLIDE (30m)
+      </button>
+      <div class="h-4 w-[1px] bg-slate-800 mx-1"></div>
+      <button id="btn-slide-1" onclick="switchSlide(1, true)" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white transition-all">
+        PLAN GO
+      </button>
+      <button id="btn-slide-2" onclick="switchSlide(2, true)" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white transition-all">
+        AHO
+      </button>
+      <button id="btn-slide-3" onclick="switchSlide(3, true)" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white transition-all">
+        KARYAWAN
+      </button>
+      <div class="h-4 w-[1px] bg-slate-800 mx-1"></div>
+      <button onclick="prevSlide()" class="p-1.5 rounded-xl bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-700 transition">
+        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+      </button>
+      <button onclick="nextSlide()" class="p-1.5 rounded-xl bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-700 transition">
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- Clock & Status Widget -->
+    <div class="flex items-center space-x-6">
+      <div class="text-right">
+        <div id="connection-status" class="flex items-center justify-end gap-2 text-xs font-black text-neon-green">
+          <span class="pulse-dot"></span> LIVE SYNC ACTIVE
+        </div>
+        <div class="text-[10px] text-slate-400 font-mono mt-0.5" id="last-updated">Update: Memuat...</div>
+      </div>
+      <div class="text-right border-l border-slate-800 pl-5">
+        <div id="live-clock" class="text-2xl font-black text-neon-cyan tracking-wider font-mono">00:00:00</div>
+        <div id="live-date" class="text-[10px] text-slate-400 font-bold uppercase">RABU, 14 OKT 2026</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Error Banner -->
+  <div id="error-banner" class="hidden absolute top-20 left-6 right-6 z-50 bg-amber-950/95 border border-amber-500/80 text-white p-4 rounded-2xl flex items-center justify-between shadow-2xl backdrop-blur-xl">
+    <div class="flex items-center space-x-3.5">
+      <i data-lucide="alert-triangle" class="w-6 h-6 text-neon-yellow shrink-0"></i>
+      <div>
+        <h4 class="font-bold text-sm" id="error-title">Gagal Mengambil Data Live dari Google Sheet</h4>
+        <p class="text-xs text-amber-200" id="error-message">Menampilkan data LocalStorage / Cache terakhir yang tersimpan.</p>
+      </div>
+    </div>
+    <div class="flex items-center space-x-2">
+      <button onclick="manualRetry()" class="px-4 py-2 bg-neon-yellow text-slate-950 font-black text-xs rounded-xl shadow hover:bg-yellow-400 transition flex items-center gap-1.5">
+        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> COBA SYNC ULANG
+      </button>
+    </div>
+  </div>
+
+  <main class="flex-1 relative w-full h-[calc(100vh-125px)] overflow-hidden z-10 flex flex-col justify-between">
+
+    <!-- ================= SLIDE 1: PLAN GO ================= -->
+    <section id="slide-plan-go" class="h-full flex flex-col justify-between transition-all duration-500">
+      
+      <!-- Top Store Focus Banner -->
+      <div class="glass-panel rounded-3xl p-4 md:p-5 relative overflow-hidden border-l-4 border-l-neon-cyan shrink-0">
+        <div id="go-stamp" class="stamp-go hidden">SUDAH GO</div>
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-3">
+              <span id="pg-store-code" class="px-3.5 py-1 bg-neon-cyan/20 text-neon-cyan font-black text-xl md:text-2xl rounded-xl border border-neon-cyan/40">
+                ----
+              </span>
+              <h2 id="pg-store-name" class="text-3xl md:text-4xl font-black tracking-tight text-white">
+                MEMUAT ANTREAN PLAN GO...
+              </h2>
+            </div>
+            <p class="text-xs text-slate-400 mt-2 flex items-center gap-2 font-semibold">
+              <i data-lucide="calendar" class="w-4 h-4 text-neon-cyan"></i>
+              PLAN TANGGAL GO: <span id="pg-go-date" class="font-black text-white text-sm">-</span>
+              <span id="pg-queue-counter" class="ml-4 px-3 py-1 rounded-lg bg-slate-800 text-xs text-neon-cyan font-black border border-slate-700">TOKO GO KE-0 DARI 17 TARGET TOKO</span>
+            </p>
+          </div>
+
+          <!-- Status / Countdown Container -->
+          <div id="pg-status-container" class="bg-slate-950/80 rounded-2xl px-6 py-3 border border-slate-800 text-center min-w-[320px] shadow-2xl">
+            <div id="pg-status-label" class="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">COUNTDOWN MENUJU GO</div>
+            <div id="pg-countdown-box" class="flex justify-center items-center gap-2 font-black text-2xl text-neon-cyan font-mono">
+              <div class="flex flex-col"><span id="cd-days" class="text-3xl text-neon-green">00</span><span class="text-[8px] text-slate-400 -mt-1 font-sans font-bold">HARI</span></div>:
+              <div class="flex flex-col"><span id="cd-hours" class="text-3xl text-white">00</span><span class="text-[8px] text-slate-400 -mt-1 font-sans font-bold">JAM</span></div>:
+              <div class="flex flex-col"><span id="cd-mins" class="text-3xl text-white">00</span><span class="text-[8px] text-slate-400 -mt-1 font-sans font-bold">MNIT</span></div>:
+              <div class="flex flex-col"><span id="cd-secs" class="text-3xl text-neon-yellow">00</span><span class="text-[8px] text-slate-400 -mt-1 font-sans font-bold">DET</span></div>
+            </div>
+            <div id="pg-status-text" class="hidden text-2xl font-black text-neon-green tracking-wider py-1">
+              GO HARI INI
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty Queue Banner -->
+      <div id="pg-empty-state" class="hidden flex-1 flex flex-col items-center justify-center glass-panel rounded-3xl my-3 text-center p-8">
+        <i data-lucide="check-circle-2" class="w-16 h-16 text-neon-green mb-4 animate-bounce"></i>
+        <h3 class="text-2xl font-black text-white tracking-wide">TIDAK ADA ANTREAN PLAN GO</h3>
+        <p class="text-sm text-slate-400 mt-2 max-w-md font-medium">Tidak ada jadwal toko yang mendekati tanggal GO.</p>
+      </div>
+
+      <!-- 10 Details Cards (CENTER-ALIGNED, NO NUMBERS, ENLARGED LABELS) -->
+      <div id="pg-details-grid" class="grid grid-cols-2 md:grid-cols-5 gap-3.5 my-3 flex-1">
+        
+        <!-- CARD 1: NOTARIS -->
+        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between border-t-4 border-t-orange-400 bg-slate-900/50 text-center items-center">
+          <div class="text-xs md:text-sm font-black text-orange-400 flex items-center justify-center gap-1.5 uppercase tracking-wider w-full">
+            <i data-lucide="file-text" class="w-4 h-4 text-orange-400"></i> NOTARIS
+          </div>
+          <div class="my-auto py-1 flex flex-col items-center justify-center w-full">
+            <div class="text-2xl md:text-3xl font-black text-white tracking-tight" id="m-notaris-tgl">-</div>
+            <div class="mt-2 flex justify-center w-full" id="m-notaris-status-container"></div>
+          </div>
+        </div>
+
+        <!-- CARD 2: TANGGAL SERAH TERIMA -->
+        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between border-t-4 border-t-amber-400 bg-amber-950/20 text-center items-center">
+          <div class="text-xs md:text-sm font-black text-amber-400 flex items-center justify-center gap-1.5 uppercase tracking-wider w-full">
+            <i data-lucide="key-round" class="w-4 h-4 text-amber-400"></i> SERAH TERIMA
+          </div>
+          <div class="my-auto py-1 flex flex-col items-center justify-center w-full">
+            <div class="text-2xl md:text-3xl font-black text-white tracking-tight" id="m-serahterima-tgl">-</div>
+            <div class="mt-2 pt-1 border-t border-slate-800 text-[11px] font-extrabold text-amber-300 flex flex-col items-center justify-center w-full">
+              <span>PROGRESS / DEVIASI:</span>
+              <span class="font-black text-white font-mono text-sm mt-0.5" id="m-building-combined">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 3: CATEGORY LAYOUT -->
+        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between border-t-4 border-t-cyan-400 bg-slate-900/50 text-center items-center">
+          <div class="text-xs md:text-sm font-black text-cyan-400 flex items-center justify-center gap-1.5 uppercase tracking-wider w-full">
+            <i data-lucide="layout-grid" class="w-4 h-4 text-cyan-400"></i> CATEGORY LAYOUT
+          </div>
+          <div class="my-auto py-1 flex flex-col items-center justify-center w-full">
+            <div class="text-2xl md:text-3xl font-black text-white tracking-tight" id="m-category-tanggal">-</div>
+            <div class="mt-2 flex justify-center w-full" id="m-category-layout-container"></div>
+          </div>
+        </div>
+
+        <!-- CARD 4: PB ADMIN OPR -->
+        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between border-t-4 border-t-indigo-400 bg-slate-900/50 text-center items-center">
+          <div class="text-xs md:text-sm font-black text-indigo-400 flex items-center justify-center gap-1.5 uppercase tracking-wider w-full">
+            <i data-lucide="file-check" class="w-4 h-4 text-indigo-400"></i> PB ADMIN OPR
+          </div>
+          <div class="my-auto py-1 flex flex-col items-center justify-center w-full">
+            <div class="text-2xl md:text-3xl font-black text-white tracking-tight" id="m-admin-pb-tgl">-</div>
+            <div class="mt-2 flex justify-center w-full" id="m-admin-pb-container"></div>
+          </div>
+        </div>
+
+        <!-- CARD 5: PAR GO -->
+        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between border-t-4 border-t-teal-400 bg-slate-900/50 text-center items-center">
+          <div class="text-xs md:text-sm font-black text-teal-400 flex items-center justify-center gap-1.5 uppercase tracking-wider w-full">
+            <i data-lucide="package-check" class="w-4 h-4 text-teal-400"></i> PAR GO
+          </div>
+          <div class="my-auto py-1 flex flex-col items-center justify-center w-full">
+            <div class="text-2xl md:text-3xl font-black text-white tracking-tight" id="m-gs-pargo-tgl">-</div>
+            <div class="mt-2 flex justify-center w-full" id="m-gs-pargo-container"></div>
+          </div>
+        </div>
+
+        <!-- CARD 6: TIME TABLE GO -->
+        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between border-t-4 border-t-purple-400 bg-slate-900/50 text-center items-center">
+          <div class="text-xs md:text-sm font-black text-purple-400 flex items-center justify-center gap-1.5 uppercase tracking-wider w-full">
+            <i data-lucide="clock" class="w-4 h-4 text-purple-400"></i> TIME TABLE GO
+          </div>
+          <div class="my-auto py-1 flex flex-col items-center justify-center w-full">
+            <div class="text-2xl md:text-3xl font-black text-white tracking-tight" id="m-admin-timetable-tgl">-</div>
+            <div class="mt-2 flex justify-center w-full" id="m-admin-timetable-container"></div>
+          </div>
+        </div>
+
+        <!-- CARD 7: GS ALOKASI RAK -->
+        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between border-t-4 border-t-blue-400 bg-slate-900/50 text-center items-center">
+          <div class="text-xs md:text-sm font-black text-blue-400 flex items-center justify-center gap-1.5 uppercase tracking-wider w-full">
+            <i data-lucide="archive" class="w-4 h-4 text-blue-400"></i> GS ALOKASI RAK
+          </div>
+          <div class="my-auto py-1 flex flex-col items-center justify-center w-full">
+            <div class="text-2xl md:text-3xl font-black text-white tracking-tight" id="m-gs-rak-tgl">-</div>
+            <div class="mt-2 flex justify-center w-full" id="m-gs-rak-container"></div>
+          </div>
+        </div>
+
+        <!-- CARD 8: SETTING PCT -->
+        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between border-t-4 border-t-pink-400 bg-slate-900/50 text-center items-center">
+          <div class="text-xs md:text-sm font-black text-pink-400 flex items-center justify-center gap-1.5 uppercase tracking-wider w-full">
+            <i data-lucide="monitor" class="w-4 h-4 text-pink-400"></i> SETTING PCT
+          </div>
+          <div class="my-auto py-1 flex flex-col items-center justify-center w-full">
+            <div class="text-2xl md:text-3xl font-black text-white tracking-tight" id="m-setting-pct-tgl">-</div>
+            <div class="mt-2 flex justify-center w-full" id="m-setting-pct-container"></div>
+          </div>
+        </div>
+
+        <!-- CARD 9: JWK PERTAMA -->
+        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between border-t-4 border-t-rose-400 bg-slate-900/50 text-center items-center">
+          <div class="text-xs md:text-sm font-black text-rose-400 flex items-center justify-center gap-1.5 uppercase tracking-wider w-full">
+            <i data-lucide="calendar-range" class="w-4 h-4 text-rose-400"></i> JWK PERTAMA
+          </div>
+          <div class="my-auto py-1 flex flex-col items-center justify-center w-full">
+            <div class="text-2xl md:text-3xl font-black text-white tracking-tight" id="m-jwk-pertama-tgl">-</div>
+            <div class="mt-2 flex justify-center w-full" id="m-jwk-pertama-container"></div>
+          </div>
+        </div>
+
+        <!-- CARD 10: PENEMPATAN PERSONIL -->
+        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between border-t-4 border-t-emerald-400 bg-emerald-950/30 text-center items-center">
+          <div class="text-xs md:text-sm font-black text-emerald-400 flex items-center justify-center gap-1.5 uppercase tracking-wider w-full">
+            <i data-lucide="users" class="w-4 h-4 text-emerald-400"></i> PENEMPATAN PERSONIL
+          </div>
+          <div class="my-auto py-1 flex flex-col items-center justify-center w-full">
+            <div class="text-3xl md:text-4xl font-black text-emerald-300 tracking-tight" id="m-pd-qty">0 Orang</div>
+            <div class="text-xs font-bold text-slate-300 mt-1">
+              Tanggal: <span class="font-extrabold text-white text-sm" id="m-pd-tanggal">-</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= SLIDE 2: AHO ================= -->
+    <section id="slide-aho" class="h-full flex flex-col hidden transition-all duration-500">
+      
+      <!-- Summary Bar -->
+      <div class="grid grid-cols-5 gap-4 mb-3.5 shrink-0">
+        <div class="glass-panel rounded-2xl p-4 border-l-4 border-l-slate-400">
+          <div class="text-xs font-black text-slate-400 uppercase tracking-wider">TOTAL PROBLEM</div>
+          <div class="text-3xl font-black text-white mt-1" id="aho-total-all">0</div>
+        </div>
+        <div class="glass-panel rounded-2xl p-4 border-l-4 border-l-neon-red">
+          <div class="text-xs font-black text-neon-red uppercase tracking-wider">NEW</div>
+          <div class="text-3xl font-black text-white mt-1" id="aho-total-new">0</div>
+        </div>
+        <div class="glass-panel rounded-2xl p-4 border-l-4 border-l-neon-yellow">
+          <div class="text-xs font-black text-neon-yellow uppercase tracking-wider">PROGRESS</div>
+          <div class="text-3xl font-black text-white mt-1" id="aho-total-progress">0</div>
+        </div>
+        <div class="glass-panel rounded-2xl p-4 border-l-4 border-l-neon-cyan">
+          <div class="text-xs font-black text-neon-cyan uppercase tracking-wider">SOLVED</div>
+          <div class="text-3xl font-black text-white mt-1" id="aho-total-solved">0</div>
+        </div>
+        <div class="glass-panel rounded-2xl p-4 border-l-4 border-l-neon-green">
+          <div class="text-xs font-black text-neon-green uppercase tracking-wider">CLOSED</div>
+          <div class="text-3xl font-black text-white mt-1" id="aho-total-closed">0</div>
+        </div>
+      </div>
+
+      <!-- Scrolling viewport for executive clarity -->
+      <div class="aho-scroll-viewport rounded-3xl flex-1 relative">
+        <div id="aho-dept-container" class="aho-scroll-content">
+          <div class="glass-panel rounded-2xl p-8 text-center text-slate-400 font-bold">
+            Memuat Data Departemen AHO...
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SLIDE 3: KARYAWAN ================= -->
+    <section id="slide-karyawan" class="h-full flex flex-col justify-between hidden transition-all duration-500 overflow-hidden">
+      <div class="text-center mb-1 shrink-0">
+        <h2 class="text-2xl font-black text-white tracking-tight uppercase">RINGKASAN STATUS KARYAWAN HARI INI</h2>
+        <p class="text-xs text-slate-400 mt-0.5 font-medium">Data real-time karyawan aktif, mutasi masuk, training & rekrut, serta turn over.</p>
+      </div>
+
+      <!-- Keycards Layout: EXPANDS UPON FULLSCREEN (flex-1) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3.5 flex-1 my-1">
+        
+        <!-- LEFT: TOTAL KARYAWAN AKTIF (Icon Top-Left, Label Centered Beside, Enlarged Number) -->
+        <div class="glass-panel rounded-3xl p-6 border-2 border-emerald-500/50 bg-gradient-to-br from-emerald-950/50 via-slate-900/90 to-slate-900/90 flex flex-col justify-between shadow-[0_0_30px_rgba(0,230,118,0.15)] relative overflow-hidden">
+          <div class="flex items-center space-x-4 w-full">
+            <div class="w-16 h-16 rounded-2xl bg-neon-green/20 border border-neon-green/40 flex items-center justify-center shrink-0 shadow-lg shadow-neon-green/10">
+              <i data-lucide="users" class="w-10 h-10 text-neon-green"></i>
+            </div>
+            <div class="flex-1 text-center">
+              <span class="text-sm md:text-base lg:text-lg font-black text-neon-green uppercase tracking-wider block">TOTAL KARYAWAN AKTIF</span>
+            </div>
+          </div>
+          <div class="my-auto py-2 text-center flex-1 flex items-center justify-center">
+            <div class="text-6xl md:text-7xl lg:text-8xl font-black text-white font-mono tracking-tight drop-shadow-md" id="kpi-aktif">0</div>
+          </div>
+        </div>
+
+        <!-- MIDDLE STACKED: TOTAL IN & TRAINING & REKRUT (Balanced and enlarged for TV) -->
+        <div class="flex flex-col gap-3.5 justify-between">
+          <!-- TOTAL IN -->
+          <div class="glass-panel rounded-2xl px-6 py-4 border border-neon-cyan/40 bg-gradient-to-r from-cyan-950/50 to-slate-900/90 flex items-center justify-between flex-1 shadow-lg shadow-neon-cyan/5">
+            <div class="flex items-center space-x-4">
+              <div class="w-14 h-14 rounded-2xl bg-neon-cyan/20 border border-neon-cyan/40 flex items-center justify-center shrink-0">
+                <i data-lucide="user-plus" class="w-8 h-8 text-neon-cyan"></i>
+              </div>
+              <span class="text-sm md:text-base font-black text-neon-cyan uppercase tracking-wider">TOTAL IN</span>
+            </div>
+            <span class="text-5xl md:text-6xl lg:text-7xl font-black text-white font-mono tracking-tight" id="kpi-in">0</span>
+          </div>
+
+          <!-- TRAINING & REKRUT -->
+          <div class="glass-panel rounded-2xl px-6 py-4 border border-neon-yellow/40 bg-gradient-to-r from-amber-950/50 to-slate-900/90 flex items-center justify-between flex-1 shadow-lg shadow-neon-yellow/5">
+            <div class="flex items-center space-x-4">
+              <div class="w-14 h-14 rounded-2xl bg-neon-yellow/20 border border-neon-yellow/40 flex items-center justify-center shrink-0">
+                <i data-lucide="graduation-cap" class="w-8 h-8 text-neon-yellow"></i>
+              </div>
+              <span class="text-sm md:text-base font-black text-neon-yellow uppercase tracking-wider">TRAINING & REKRUT</span>
+            </div>
+            <span class="text-5xl md:text-6xl lg:text-7xl font-black text-white font-mono tracking-tight" id="kpi-training">0</span>
+          </div>
+        </div>
+
+        <!-- RIGHT: TURN OVER (EYE-CATCHING TV DISPLAY WITH PULSING RED GLOW & ENLARGED TEXT) -->
+        <div class="glass-panel rounded-3xl p-6 border-2 border-red-500/70 bg-gradient-to-br from-red-950/80 via-rose-950/50 to-slate-950/90 flex flex-col justify-between shadow-[0_0_35px_rgba(255,77,109,0.3)] relative overflow-hidden group">
+          <div class="absolute -top-12 -right-12 w-32 h-32 bg-red-600/20 rounded-full blur-2xl pointer-events-none"></div>
+          <div class="flex items-center space-x-4 w-full relative z-10">
+            <div class="w-16 h-16 rounded-2xl bg-neon-red/20 border border-neon-red/50 flex items-center justify-center shrink-0 shadow-lg shadow-neon-red/20">
+              <i data-lucide="user-minus" class="w-10 h-10 text-neon-red"></i>
+            </div>
+            <div class="flex-1 text-center">
+              <span class="text-sm md:text-base lg:text-lg font-black text-neon-red uppercase tracking-wider block drop-shadow">TURN OVER</span>
+            </div>
+          </div>
+          <div class="my-auto py-2 text-center flex-1 flex items-center justify-center relative z-10">
+            <div class="flex items-baseline justify-center gap-3">
+              <div class="text-6xl md:text-7xl lg:text-8xl font-black text-neon-red font-mono tracking-tight drop-shadow-[0_0_18px_rgba(255,77,109,0.6)]" id="kpi-out">0</div>
+              <div class="text-2xl md:text-3xl lg:text-4xl font-extrabold text-rose-300 font-mono bg-red-950/80 border border-red-500/50 px-3 py-1 rounded-2xl shadow-lg shadow-red-950/50" id="kpi-out-pct">(0.0%)</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Split 50/50 Region Breakdown Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 shrink-0 max-h-[220px]">
+        
+        <!-- REGION 1: SULUTGO -->
+        <div class="glass-panel rounded-3xl p-4 border-l-4 border-l-emerald-400 bg-slate-900/40 flex flex-col justify-between">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800/80">
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center font-black text-emerald-400">
+                <i data-lucide="map-pin" class="w-4 h-4 text-emerald-400"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-black text-white tracking-wide">DAERAH SULUTGO</h3>
+                <p class="text-[9px] font-bold text-slate-400">Sulawesi Utara & Gorontalo</p>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 text-[9px] font-extrabold bg-emerald-400/20 text-emerald-300 rounded-md border border-emerald-400/30">REGIONAL 1</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5 mt-2">
+            <div class="bg-slate-950/80 px-3 py-2 rounded-xl border border-slate-800/80 flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="users" class="w-4 h-4 text-emerald-400"></i>
+                <span class="text-[11px] font-extrabold text-slate-300 uppercase">AKTIF</span>
+              </div>
+              <span class="text-xl font-black text-emerald-400 font-mono" id="sg-aktif">0</span>
+            </div>
+
+            <div class="bg-slate-950/80 px-3 py-2 rounded-xl border border-slate-800/80 flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="user-plus" class="w-4 h-4 text-cyan-400"></i>
+                <span class="text-[11px] font-extrabold text-slate-300 uppercase">IN</span>
+              </div>
+              <span class="text-xl font-black text-cyan-400 font-mono" id="sg-in">0</span>
+            </div>
+
+            <div class="bg-slate-950/80 px-3 py-2 rounded-xl border border-slate-800/80 flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="user-minus" class="w-4 h-4 text-rose-400"></i>
+                <span class="text-[11px] font-extrabold text-slate-300 uppercase">TURN OVER</span>
+              </div>
+              <div class="flex items-center gap-1.5 font-mono">
+                <span class="text-xl font-black text-rose-400" id="sg-out">0</span>
+                <span class="text-xs font-black text-rose-300 bg-rose-950/80 border border-rose-500/40 px-1.5 py-0.5 rounded-md" id="sg-out-pct">(0.0%)</span>
+              </div>
+            </div>
+
+            <div class="bg-slate-950/80 px-3 py-2 rounded-xl border border-slate-800/80 flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="graduation-cap" class="w-4 h-4 text-amber-400"></i>
+                <span class="text-[11px] font-extrabold text-slate-300 uppercase">TRN & REK</span>
+              </div>
+              <span class="text-xl font-black text-amber-400 font-mono" id="sg-training">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- REGION 2: MALUKU UTARA -->
+        <div class="glass-panel rounded-3xl p-4 border-l-4 border-l-cyan-400 bg-slate-900/40 flex flex-col justify-between">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800/80">
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center font-black text-cyan-400">
+                <i data-lucide="map-pin" class="w-4 h-4 text-cyan-400"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-black text-white tracking-wide">DAERAH MALUKU UTARA</h3>
+                <p class="text-[9px] font-bold text-slate-400">Ternate, Sofifi, Halmahera & sekitarnya</p>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 text-[9px] font-extrabold bg-cyan-400/20 text-cyan-300 rounded-md border border-cyan-400/30">REGIONAL 2</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5 mt-2">
+            <div class="bg-slate-950/80 px-3 py-2 rounded-xl border border-slate-800/80 flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="users" class="w-4 h-4 text-emerald-400"></i>
+                <span class="text-[11px] font-extrabold text-slate-300 uppercase">AKTIF</span>
+              </div>
+              <span class="text-xl font-black text-emerald-400 font-mono" id="mu-aktif">0</span>
+            </div>
+
+            <div class="bg-slate-950/80 px-3 py-2 rounded-xl border border-slate-800/80 flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="user-plus" class="w-4 h-4 text-cyan-400"></i>
+                <span class="text-[11px] font-extrabold text-slate-300 uppercase">IN</span>
+              </div>
+              <span class="text-xl font-black text-cyan-400 font-mono" id="mu-in">0</span>
+            </div>
+
+            <div class="bg-slate-950/80 px-3 py-2 rounded-xl border border-slate-800/80 flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="user-minus" class="w-4 h-4 text-rose-400"></i>
+                <span class="text-[11px] font-extrabold text-slate-300 uppercase">TURN OVER</span>
+              </div>
+              <div class="flex items-center gap-1.5 font-mono">
+                <span class="text-xl font-black text-rose-400" id="mu-out">0</span>
+                <span class="text-xs font-black text-rose-300 bg-rose-950/80 border border-rose-500/40 px-1.5 py-0.5 rounded-md" id="mu-out-pct">(0.0%)</span>
+              </div>
+            </div>
+
+            <div class="bg-slate-950/80 px-3 py-2 rounded-xl border border-slate-800/80 flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="graduation-cap" class="w-4 h-4 text-amber-400"></i>
+                <span class="text-[11px] font-extrabold text-slate-300 uppercase">TRN & REK</span>
+              </div>
+              <span class="text-xl font-black text-amber-400 font-mono" id="mu-training">0</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-auto pt-2 pb-1 flex items-center justify-center shrink-0 z-20 border-t border-slate-800/60">
+    <div class="flex items-center space-x-2 px-4 py-1 rounded-full bg-slate-900/90 border border-slate-800 shadow-xl backdrop-blur-md">
+      <div class="w-4 h-4 rounded-full bg-gradient-to-tr from-cyan-400 via-blue-500 to-indigo-500 flex items-center justify-center text-[9px] font-black text-slate-950 shadow-inner">
+        G
+      </div>
+      <span class="text-[11px] font-bold text-slate-300 tracking-wide">
+        &copy; 2026 Gagas. All rights reserved.
+      </span>
+    </div>
+  </footer>
+
+  <script>
+    const GOOGLE_SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbz0VVX1Ykh6R2m5MXfKVIIrkEq5tMYYPGVfPgQhzqRHO0yEg075xrNvdOVg2jnpliferw/exec';
+    
+    const SLIDE_DURATION_MS = 30 * 60 * 1000; 
+    const STORE_ROTATION_MS = 15 * 1000;      
+    const TARGET_TOTAL_TOKO = 17;             
+
+    const REFRESH_PLAN_GO_MS = 30 * 1000;
+    const REFRESH_AHO_MS = 30 * 1000;
+    const REFRESH_EMP_MS = 30 * 1000;
+
+    let currentSlide = 1;
+    let isAutoMode = true;
+    let autoSlideTimer = null;
+    let storeRotationTimer = null;
+    let liveClockTimer = null;
+    let countdownTimer = null;
+
+    let refreshPlanGoTimer = null;
+    let refreshAhoTimer = null;
+    let refreshEmpTimer = null;
+
+    let planGoQueue = [];
+    let currentStoreIndex = 0;
+    let confettiTriggeredStores = new Set();
+
+    let ahoData = null;
+    let employeesData = null;
+
+    // Fallback Mock Data
+    const MOCK_PLAN_GO = [
+      {
+        KodeToko: "F101",
+        NamaToko: "ALFAMIDI MANADO SOUTH",
+        PlanTanggalGo: new Date(Date.now() + 3 * 86400000).toISOString(),
+        isSudahGo: false,
+        statusLabel: "COUNTDOWN MENUJU GO",
+        Notaris_Tanggal: new Date().toISOString(),
+        Notaris_Status: "OK",
+        SerahTerima_Tanggal: new Date().toISOString(),
+        Building_Progress: "92%",
+        Building_Deviasi: "+2%",
+        Category_TanggalSelesai: new Date().toISOString(),
+        Category_Layout: "OK",
+        AdminOPR_PB_Tanggal: new Date().toISOString(),
+        AdminOPR_PB: "OK",
+        GService_PARGO_Tanggal: new Date().toISOString(),
+        GService_PARGO: "OK",
+        AdminOPR_TimeTable_Tanggal: new Date().toISOString(),
+        AdminOPR_TimeTable: "OK",
+        GService_Rak_Tanggal: new Date().toISOString(),
+        GService_Rak: "OK",
+        SettingPCT_Tanggal: new Date().toISOString(),
+        JWKPertama_Tanggal: new Date().toISOString(),
+        PD_QtyMPP: "12",
+        PD_TanggalPenempatan: new Date().toISOString()
+      }
+    ];
+
+    const MOCK_AHO = {
+      totals: { NEW: 3, PROGRESS: 5, SOLVED: 8, CLOSED: 14, TOTAL: 30 },
+      departments: [
+        { department: "IT & SYSTEMS", NEW: 1, PROGRESS: 2, SOLVED: 3, CLOSED: 5, TOTAL: 11 },
+        { department: "BUILDING & MAINTENANCE", NEW: 1, PROGRESS: 1, SOLVED: 3, CLOSED: 4, TOTAL: 9 },
+        { department: "LOGISTIK & DISTRIBUTION", NEW: 1, PROGRESS: 2, SOLVED: 2, CLOSED: 5, TOTAL: 10 }
+      ]
+    };
+
+    const MOCK_EMPLOYEES = {
+      totalAktif: 1245,
+      totalIn: 34,
+      totalOut: 8,
+      totalTraining: 26,
+      sulutgo: { aktif: 780, in: 22, out: 5, training: 16 },
+      malukuUtara: { aktif: 465, in: 12, out: 3, training: 10 }
+    };
+
+    function saveToLocalStorage(key, val) {
+      try {
+        localStorage.setItem(`alfamidi_tv_${key}`, JSON.stringify({ timestamp: Date.now(), data: val }));
+      } catch (e) {
+        console.warn('LocalStorage Write Failed:', e);
+      }
+    }
+
+    function getFromLocalStorage(key) {
+      try {
+        const item = localStorage.getItem(`alfamidi_tv_${key}`);
+        if (!item) return null;
+        return JSON.parse(item);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function getFlexProp(obj, ...candidates) {
+      if (!obj || typeof obj !== 'object') return '';
+      for (const key of candidates) {
+        if (!key) continue;
+        if (obj[key] !== undefined && obj[key] !== null) return obj[key];
+        
+        const keyClean = String(key).toLowerCase().replace(/[^a-z0-9]/g, '');
+        for (const objKey in obj) {
+          if (objKey.toLowerCase().replace(/[^a-z0-9]/g, '') === keyClean) {
+            if (obj[objKey] !== undefined && obj[objKey] !== null) return obj[objKey];
+          }
+        }
+      }
+      return '';
+    }
+
+    function parseDateRobust(dateVal) {
+      if (!dateVal || dateVal === '-' || dateVal === '1970-01-01T00:00:00.000Z') return null;
+      if (dateVal instanceof Date) {
+        return isNaN(dateVal.getTime()) ? null : dateVal;
+      }
+
+      const str = String(dateVal).trim();
+      if (!str) return null;
+
+      let d = new Date(str);
+      if (!isNaN(d.getTime())) return d;
+
+      const ddmmyyyyMatch = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+      if (ddmmyyyyMatch) {
+        const day = parseInt(ddmmyyyyMatch[1], 10);
+        const month = parseInt(ddmmyyyyMatch[2], 10) - 1;
+        const year = parseInt(ddmmyyyyMatch[3], 10);
+        d = new Date(year, month, day);
+        if (!isNaN(d.getTime())) return d;
+      }
+
+      return null;
+    }
+
+    function renderRealtimeDateBadge(dateVal) {
+      const d = parseDateRobust(dateVal);
+      if (!d) {
+        return `<span class="px-2.5 py-0.5 text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-md shadow-sm uppercase">PROGRESS</span>`;
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const checkDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+      if (checkDate.getTime() <= today.getTime()) {
+        return `<span class="px-2.5 py-0.5 text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-md shadow-sm uppercase">DONE</span>`;
+      } else {
+        return `<span class="px-2.5 py-0.5 text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-md shadow-sm uppercase">PROGRESS</span>`;
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      startLiveClock();
+      
+      fetchAllData();
+
+      refreshPlanGoTimer = setInterval(fetchPlanGoData, REFRESH_PLAN_GO_MS);
+      refreshAhoTimer = setInterval(fetchAhoData, REFRESH_AHO_MS);
+      refreshEmpTimer = setInterval(fetchEmployeesData, REFRESH_EMP_MS);
+
+      enableAutoMode();
+    });
+
+    function fetchAllData() {
+      fetchPlanGoData();
+      fetchAhoData();
+      fetchEmployeesData();
+    }
+
+    function startLiveClock() {
+      if (liveClockTimer) clearInterval(liveClockTimer);
+      const updateClock = () => {
+        const now = new Date();
+        document.getElementById('live-clock').innerText = now.toLocaleTimeString('id-ID', { hour12: false });
+        
+        const days = ['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'];
+        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGU', 'SEP', 'OKT', 'NOV', 'DES'];
+        document.getElementById('live-date').innerText = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+      };
+      updateClock();
+      liveClockTimer = setInterval(updateClock, 1000);
+    }
+
+    function switchSlide(slideNum, isManual = false) {
+      if (isManual) disableAutoMode();
+
+      currentSlide = slideNum;
+      
+      const s1 = document.getElementById('slide-plan-go');
+      const s2 = document.getElementById('slide-aho');
+      const s3 = document.getElementById('slide-karyawan');
+
+      s1.classList.add('hidden');
+      s2.classList.add('hidden');
+      s3.classList.add('hidden');
+
+      document.querySelectorAll('[id^="btn-slide-"]').forEach(btn => {
+        btn.classList.remove('bg-slate-800', 'text-white', 'font-bold');
+        btn.classList.add('text-slate-300');
+      });
+
+      const activeBtn = document.getElementById(`btn-slide-${slideNum}`);
+      if (activeBtn) activeBtn.classList.add('bg-slate-800', 'text-white', 'font-bold');
+
+      const slideTitleEl = document.getElementById('current-slide-title');
+
+      if (slideNum === 1) {
+        s1.classList.remove('hidden');
+        slideTitleEl.innerText = 'SLIDE 1: PLAN GO';
+      } else if (slideNum === 2) {
+        s2.classList.remove('hidden');
+        slideTitleEl.innerText = 'SLIDE 2: AHO DEPARTEMEN';
+      } else if (slideNum === 3) {
+        s3.classList.remove('hidden');
+        slideTitleEl.innerText = 'SLIDE 3: RINGKASAN KARYAWAN';
+      }
+    }
+
+    function nextSlide() { switchSlide(currentSlide >= 3 ? 1 : currentSlide + 1, true); }
+    function prevSlide() { switchSlide(currentSlide <= 1 ? 3 : currentSlide - 1, true); }
+
+    function enableAutoMode() {
+      isAutoMode = true;
+      document.getElementById('btn-auto').className = 'px-3.5 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 bg-neon-cyan text-slate-950 shadow-lg shadow-neon-cyan/20';
+      if (autoSlideTimer) clearInterval(autoSlideTimer);
+      autoSlideTimer = setInterval(() => switchSlide(currentSlide >= 3 ? 1 : currentSlide + 1, false), SLIDE_DURATION_MS);
+    }
+
+    function disableAutoMode() {
+      isAutoMode = false;
+      document.getElementById('btn-auto').className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition-all bg-slate-800/80';
+      if (autoSlideTimer) clearInterval(autoSlideTimer);
+    }
+
+    async function fetchApi(action) {
+      const url = `${GOOGLE_SHEET_API_URL}?action=${action}&t=${Date.now()}`;
+      try {
+        const response = await fetch(url, { method: 'GET', redirect: 'follow' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const json = await response.json();
+        
+        let extractedData = null;
+        if (json && json.success === true && json.data !== undefined) {
+          extractedData = json.data;
+        } else if (json && json[action] !== undefined) {
+          extractedData = json[action];
+        } else if (Array.isArray(json) || (typeof json === 'object' && json !== null)) {
+          extractedData = json;
+        }
+
+        if (!extractedData) throw new Error('Format data tidak dikenali atau kosong.');
+
+        saveToLocalStorage(action, extractedData);
+        return { data: extractedData, source: 'LIVE' };
+      } catch (err) {
+        console.warn(`[Fetch API ${action} Error]:`, err.message);
+        
+        const localCached = getFromLocalStorage(action);
+        if (localCached && localCached.data) return { data: localCached.data, source: 'LOCAL_STORAGE', errorMsg: err.message };
+
+        let mockData = null;
+        if (action === 'planGo') mockData = MOCK_PLAN_GO;
+        else if (action === 'aho') mockData = MOCK_AHO;
+        else if (action === 'employees') mockData = MOCK_EMPLOYEES;
+
+        return { data: mockData, source: 'DEMO', errorMsg: err.message };
+      }
+    }
+
+    function showStatusError(title, msg, isOffline = false) {
+      const errBanner = document.getElementById('error-banner');
+      document.getElementById('error-title').innerText = title || 'Gagal Mengambil Data Live';
+      document.getElementById('error-message').innerText = msg || 'Menampilkan data LocalStorage / Cache.';
+      errBanner.classList.remove('hidden');
+
+      const connStatus = document.getElementById('connection-status');
+      const modeBadge = document.getElementById('mode-badge');
+
+      if (isOffline) {
+        connStatus.className = 'flex items-center justify-end gap-2 text-xs font-black text-amber-400';
+        connStatus.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> LOCAL CACHE';
+        modeBadge.innerText = 'OFFLINE / CACHE';
+        modeBadge.className = 'px-2 py-0.5 text-[9px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/40 rounded-full uppercase tracking-widest';
+      }
+    }
+
+    function clearStatusError() {
+      document.getElementById('error-banner').classList.add('hidden');
+      const connStatus = document.getElementById('connection-status');
+      const modeBadge = document.getElementById('mode-badge');
+      
+      connStatus.className = 'flex items-center justify-end gap-2 text-xs font-black text-neon-green';
+      connStatus.innerHTML = '<span class="pulse-dot"></span> LIVE SYNC ACTIVE';
+      modeBadge.innerText = 'REAL-TIME LIVE';
+      modeBadge.className = 'px-2 py-0.5 text-[9px] font-black bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/40 rounded-full uppercase tracking-widest';
+    }
+
+    function updateLastUpdatedTime() {
+      const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      document.getElementById('last-updated').innerText = `Sync: ${timeStr}`;
+    }
+
+    function manualRetry() {
+      clearStatusError();
+      fetchAllData();
+    }
+
+    async function fetchPlanGoData() {
+      const res = await fetchApi('planGo');
+      if (res.source === 'LIVE') clearStatusError();
+      else showStatusError('Mode Local / Offline', `Menggunakan data cache. (Detail: ${res.errorMsg || 'Google Script Sync Offline'})`, true);
+      
+      updateLastUpdatedTime();
+      planGoQueue = Array.isArray(res.data) ? res.data : [];
+      if (currentStoreIndex >= planGoQueue.length) currentStoreIndex = 0;
+
+      renderPlanGoStore();
+      startStoreRotation();
+    }
+
+    function startStoreRotation() {
+      if (storeRotationTimer) clearInterval(storeRotationTimer);
+      if (planGoQueue.length <= 1) return;
+
+      storeRotationTimer = setInterval(() => {
+        currentStoreIndex = (currentStoreIndex + 1) % planGoQueue.length;
+        renderPlanGoStore();
+      }, STORE_ROTATION_MS);
+    }
+
+    function renderPlanGoStore() {
+      const emptyState = document.getElementById('pg-empty-state');
+      const detailsGrid = document.getElementById('pg-details-grid');
+      
+      if (!planGoQueue || planGoQueue.length === 0) {
+        emptyState.classList.remove('hidden');
+        detailsGrid.classList.add('hidden');
+        document.getElementById('pg-store-code').innerText = '----';
+        document.getElementById('pg-store-name').innerText = 'TIDAK ADA ANTREAN PLAN GO';
+        document.getElementById('pg-go-date').innerText = '-';
+        document.getElementById('go-stamp').classList.add('hidden');
+        document.getElementById('pg-queue-counter').innerText = `TOKO GO KE-0 DARI ${TARGET_TOTAL_TOKO} TARGET TOKO`;
+        if (countdownTimer) clearInterval(countdownTimer);
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      detailsGrid.classList.remove('hidden');
+
+      const store = planGoQueue[currentStoreIndex];
+      
+      const kodeToko = getFlexProp(store, 'KodeToko', 'Kode Toko', 'Kode', 'kode_toko') || '----';
+      const namaToko = getFlexProp(store, 'NamaToko', 'Nama Toko', 'Toko', 'nama_toko') || 'TANPA NAMA TOKO';
+      const rawDateGo = getFlexProp(store, 'PlanTanggalGo', 'Plan Tanggal GO', 'Tanggal GO', 'TanggalGO', 'tgl go');
+
+      document.getElementById('pg-store-code').innerText = kodeToko;
+      document.getElementById('pg-store-name').innerText = namaToko;
+      document.getElementById('pg-go-date').innerText = formatDateDisplay(rawDateGo);
+      
+      const storeOrderNum = currentStoreIndex + 1;
+      document.getElementById('pg-queue-counter').innerText = `TOKO GO KE-${storeOrderNum} DARI ${TARGET_TOTAL_TOKO} TARGET TOKO`;
+
+      // 1. Notaris
+      const notarisTgl = getFlexProp(store, 'Notaris_Tanggal', 'Notaris Tanggal', 'tgl notaris');
+      document.getElementById('m-notaris-tgl').innerText = formatDateDisplay(notarisTgl);
+      document.getElementById('m-notaris-status-container').innerHTML = renderRealtimeDateBadge(notarisTgl);
+
+      // 2. Serah Terima Toko & Building Progress / Deviasi
+      const stTgl = getFlexProp(store, 'SerahTerima_Tanggal', 'Serah Terima Tanggal', 'tgl serah terima', 'SPK_LamaHari');
+      document.getElementById('m-serahterima-tgl').innerText = formatDateDisplay(stTgl);
+      const bProgress = formatVal(getFlexProp(store, 'Building_Progress', 'Building Progress', 'Progress Building'));
+      const bDeviasi = formatVal(getFlexProp(store, 'Building_Deviasi', 'Building Deviasi', 'Deviasi Building'));
+      document.getElementById('m-building-combined').innerText = `${bProgress} / ${bDeviasi}`;
+
+      // 3. Category Layout
+      const catTgl = getFlexProp(store, 'Category_TanggalSelesai', 'Category Tanggal Selesai', 'Category Tanggal');
+      document.getElementById('m-category-tanggal').innerText = formatDateDisplay(catTgl);
+      document.getElementById('m-category-layout-container').innerHTML = renderRealtimeDateBadge(catTgl);
+
+      // 4. PB Admin OPR
+      const pbTgl = getFlexProp(store, 'AdminOPR_PB_Tanggal', 'Admin OPR PB Tanggal', 'PB Tanggal');
+      document.getElementById('m-admin-pb-tgl').innerText = formatDateDisplay(pbTgl);
+      document.getElementById('m-admin-pb-container').innerHTML = renderRealtimeDateBadge(pbTgl);
+
+      // 5. PAR GO
+      const parTgl = getFlexProp(store, 'GService_PARGO_Tanggal', 'GService PARGO Tanggal', 'PAR GO Tanggal');
+      document.getElementById('m-gs-pargo-tgl').innerText = formatDateDisplay(parTgl);
+      document.getElementById('m-gs-pargo-container').innerHTML = renderRealtimeDateBadge(parTgl);
+
+      // 6. Time Table GO
+      const ttTgl = getFlexProp(store, 'AdminOPR_TimeTable_Tanggal', 'Admin OPR TimeTable Tanggal', 'TimeTable Tanggal');
+      document.getElementById('m-admin-timetable-tgl').innerText = formatDateDisplay(ttTgl);
+      document.getElementById('m-admin-timetable-container').innerHTML = renderRealtimeDateBadge(ttTgl);
+
+      // 7. GS Alokasi Rak
+      const rakTgl = getFlexProp(store, 'GService_Rak_Tanggal', 'GService Rak Tanggal', 'Rak Tanggal');
+      document.getElementById('m-gs-rak-tgl').innerText = formatDateDisplay(rakTgl);
+      document.getElementById('m-gs-rak-container').innerHTML = renderRealtimeDateBadge(rakTgl);
+
+      // 8. Setting PCT
+      const pctTgl = getFlexProp(store, 'SettingPCT_Tanggal', 'Setting PCT Tanggal', 'POAsset Tanggal');
+      document.getElementById('m-setting-pct-tgl').innerText = formatDateDisplay(pctTgl);
+      document.getElementById('m-setting-pct-container').innerHTML = renderRealtimeDateBadge(pctTgl);
+
+      // 9. JWK Pertama
+      const jwkTgl = getFlexProp(store, 'JWKPertama_Tanggal', 'JWK Pertama Tanggal', 'JWK Tanggal');
+      document.getElementById('m-jwk-pertama-tgl').innerText = formatDateDisplay(jwkTgl);
+      document.getElementById('m-jwk-pertama-container').innerHTML = renderRealtimeDateBadge(jwkTgl);
+
+      // 10. Penempatan Personil (MPP)
+      const qtyMpp = getFlexProp(store, 'PD_QtyMPP', 'PD Qty MPP', 'Qty MPP', 'MPP', 'Personil');
+      const pdTgl = getFlexProp(store, 'PD_TanggalPenempatan', 'PD Tanggal Penempatan', 'Tanggal Penempatan');
+      if (qtyMpp && qtyMpp !== '-' && !isNaN(parseInt(qtyMpp))) {
+        document.getElementById('m-pd-qty').innerText = `${parseInt(qtyMpp)} Orang`;
+      } else if (qtyMpp && qtyMpp !== '-') {
+        document.getElementById('m-pd-qty').innerText = String(qtyMpp);
+      } else {
+        document.getElementById('m-pd-qty').innerText = '0 Orang';
+      }
+      document.getElementById('m-pd-tanggal').innerText = formatDateDisplay(pdTgl);
+
+      // Stamp & Countdown Check
+      const isSudahGo = Boolean(getFlexProp(store, 'isSudahGo')) || checkIsPastDate(rawDateGo);
+      const stampEl = document.getElementById('go-stamp');
+      const cdBox = document.getElementById('pg-countdown-box');
+      const statusText = document.getElementById('pg-status-text');
+      const statusLabel = document.getElementById('pg-status-label');
+
+      if (isSudahGo) {
+        stampEl.classList.remove('hidden');
+        cdBox.classList.add('hidden');
+        statusText.classList.remove('hidden');
+        statusText.innerText = getFlexProp(store, 'statusLabel') || 'SUDAH GO';
+        statusLabel.innerText = 'STATUS OPERASIONAL';
+
+        if (!confettiTriggeredStores.has(kodeToko)) {
+          confettiTriggeredStores.add(kodeToko);
+          triggerConfetti();
+        }
+      } else {
+        stampEl.classList.add('hidden');
+        statusText.classList.add('hidden');
+        cdBox.classList.remove('hidden');
+        statusLabel.innerText = 'COUNTDOWN MENUJU GO';
+
+        startCountdownTimer(rawDateGo);
+      }
+    }
+
+    function checkIsPastDate(dateVal) {
+      const d = parseDateRobust(dateVal);
+      if (!d) return false;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return d.getTime() <= today.getTime();
+    }
+
+    function startCountdownTimer(targetDateRaw) {
+      if (countdownTimer) clearInterval(countdownTimer);
+      const targetObj = parseDateRobust(targetDateRaw);
+      if (!targetObj) return;
+
+      const targetTime = targetObj.getTime();
+
+      const updateCD = () => {
+        const now = new Date().getTime();
+        const diff = targetTime - now;
+
+        if (diff <= 0) {
+          document.getElementById('cd-days').innerText = '00';
+          document.getElementById('cd-hours').innerText = '00';
+          document.getElementById('cd-mins').innerText = '00';
+          document.getElementById('cd-secs').innerText = '00';
+          return;
+        }
+
+        document.getElementById('cd-days').innerText = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, '0');
+        document.getElementById('cd-hours').innerText = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+        document.getElementById('cd-mins').innerText = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+        document.getElementById('cd-secs').innerText = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
+      };
+
+      updateCD();
+      countdownTimer = setInterval(updateCD, 1000);
+    }
+
+    function triggerConfetti() {
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+      }
+    }
+
+    async function fetchAhoData() {
+      const res = await fetchApi('aho');
+      ahoData = res.data;
+      renderAhoSlide();
+    }
+
+    function renderAhoSlide() {
+      if (!ahoData) return;
+
+      let departments = [];
+      let totals = { NEW: 0, PROGRESS: 0, SOLVED: 0, CLOSED: 0, TOTAL: 0 };
+
+      if (Array.isArray(ahoData)) {
+        departments = ahoData;
+      } else if (typeof ahoData === 'object') {
+        departments = ahoData.departments || ahoData.departmentList || [];
+        if (ahoData.totals) totals = ahoData.totals;
+      }
+
+      if (!ahoData.totals && departments.length > 0) {
+        departments.forEach(dept => {
+          const numNew = parseInt(getFlexProp(dept, 'NEW', 'new')) || 0;
+          const numProg = parseInt(getFlexProp(dept, 'PROGRESS', 'progress', 'prog')) || 0;
+          const numSolv = parseInt(getFlexProp(dept, 'SOLVED', 'solved')) || 0;
+          const numClos = parseInt(getFlexProp(dept, 'CLOSED', 'closed')) || 0;
+          const numTot = numNew + numProg + numSolv + numClos;
+
+          totals.NEW += numNew;
+          totals.PROGRESS += numProg;
+          totals.SOLVED += numSolv;
+          totals.CLOSED += numClos;
+          totals.TOTAL += numTot;
+        });
+      }
+
+      document.getElementById('aho-total-all').innerText = totals.TOTAL || 0;
+      document.getElementById('aho-total-new').innerText = totals.NEW || 0;
+      document.getElementById('aho-total-progress').innerText = totals.PROGRESS || 0;
+      document.getElementById('aho-total-solved').innerText = totals.SOLVED || 0;
+      document.getElementById('aho-total-closed').innerText = totals.CLOSED || 0;
+
+      const deptContainer = document.getElementById('aho-dept-container');
+
+      if (departments.length === 0) {
+        deptContainer.innerHTML = `<div class="glass-panel rounded-2xl p-8 text-center text-slate-400 font-bold">TIDAK ADA DATA PROBLEM AHO HARI INI</div>`;
+        return;
+      }
+
+      const renderDeptCard = (dept) => {
+        const deptName = getFlexProp(dept, 'department', 'departemen', 'dept') || 'DEPARTEMEN';
+        const numNew = parseInt(getFlexProp(dept, 'NEW', 'new')) || 0;
+        const numProg = parseInt(getFlexProp(dept, 'PROGRESS', 'progress', 'prog')) || 0;
+        const numSolv = parseInt(getFlexProp(dept, 'SOLVED', 'solved')) || 0;
+        const numClos = parseInt(getFlexProp(dept, 'CLOSED', 'closed')) || 0;
+        const totalDept = parseInt(getFlexProp(dept, 'TOTAL', 'total')) || (numNew + numProg + numSolv + numClos);
+
+        return `
+          <div class="glass-panel rounded-2xl p-6 flex items-center justify-between border-l-4 border-l-cyan-400 shadow-2xl">
+            <div class="flex items-center space-x-5">
+              <div class="w-16 h-16 rounded-2xl bg-slate-900 border border-slate-700 flex items-center justify-center font-bold text-white shadow-inner">
+                <i data-lucide="building-2" class="w-9 h-9 text-neon-cyan"></i>
+              </div>
+              <div>
+                <h4 class="font-black text-2xl text-white tracking-wide">${escapeHtml(deptName)}</h4>
+                <p class="text-sm text-slate-400 font-bold mt-1">Total Problem: <span class="font-black text-white text-lg">${totalDept}</span></p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-4">
+              <div class="px-5 py-2.5 rounded-xl bg-red-950/90 border border-red-500/50 text-center min-w-[95px]">
+                <div class="text-xs font-black text-neon-red uppercase tracking-wider">NEW</div>
+                <div class="text-3xl font-black text-white font-mono mt-0.5">${numNew}</div>
+              </div>
+              <div class="px-5 py-2.5 rounded-xl bg-amber-950/90 border border-amber-500/50 text-center min-w-[95px]">
+                <div class="text-xs font-black text-neon-yellow uppercase tracking-wider">PROG</div>
+                <div class="text-3xl font-black text-white font-mono mt-0.5">${numProg}</div>
+              </div>
+              <div class="px-5 py-2.5 rounded-xl bg-cyan-950/90 border border-cyan-500/50 text-center min-w-[95px]">
+                <div class="text-xs font-black text-neon-cyan uppercase tracking-wider">SOLVED</div>
+                <div class="text-3xl font-black text-white font-mono mt-0.5">${numSolv}</div>
+              </div>
+              <div class="px-5 py-2.5 rounded-xl bg-emerald-950/90 border border-emerald-500/50 text-center min-w-[95px]">
+                <div class="text-xs font-black text-neon-green uppercase tracking-wider">CLOSED</div>
+                <div class="text-3xl font-black text-white font-mono mt-0.5">${numClos}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      };
+
+      let html = departments.map(renderDeptCard).join('');
+      if (departments.length > 2) html += departments.map(renderDeptCard).join('');
+
+      deptContainer.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    async function fetchEmployeesData() {
+      const res = await fetchApi('employees');
+      employeesData = res.data;
+      renderEmployeesSlide();
+    }
+
+    function renderEmployeesSlide() {
+      if (!employeesData) return;
+
+      const totalAktif = parseInt(getFlexProp(employeesData, 'totalAktif', 'total_aktif', 'totalAktifKaryawan')) || 0;
+      const totalIn = parseInt(getFlexProp(employeesData, 'totalIn', 'total_in')) || 0;
+      const totalOut = parseInt(getFlexProp(employeesData, 'totalOut', 'total_out')) || 0;
+      
+      const sg = getFlexProp(employeesData, 'sulutgo') || {};
+      const mu = getFlexProp(employeesData, 'malukuUtara', 'malut') || {};
+
+      const sgAktif = parseInt(getFlexProp(sg, 'aktif')) || 0;
+      const sgOut = parseInt(getFlexProp(sg, 'out')) || 0;
+      const sgTrn = parseInt(getFlexProp(sg, 'training', 'trn')) || 0;
+
+      const muAktif = parseInt(getFlexProp(mu, 'aktif')) || 0;
+      const muOut = parseInt(getFlexProp(mu, 'out')) || 0;
+      const muTrn = parseInt(getFlexProp(mu, 'training', 'trn')) || 0;
+
+      const totalTraining = (employeesData.totalTraining !== undefined) 
+        ? parseInt(employeesData.totalTraining) 
+        : (sgTrn + muTrn);
+
+      // Hitung Presentase Turnover (% TO = OUT / AKTIF * 100)
+      const totalOutPct = totalAktif > 0 ? ((totalOut / totalAktif) * 100).toFixed(1) : '0.0';
+      const sgOutPct = sgAktif > 0 ? ((sgOut / sgAktif) * 100).toFixed(1) : '0.0';
+      const muOutPct = muAktif > 0 ? ((muOut / muAktif) * 100).toFixed(1) : '0.0';
+
+      const elKpiPct = document.getElementById('kpi-out-pct');
+      if (elKpiPct) elKpiPct.innerText = `(${totalOutPct}%)`;
+
+      const elSgPct = document.getElementById('sg-out-pct');
+      if (elSgPct) elSgPct.innerText = `(${sgOutPct}%)`;
+
+      const elMuPct = document.getElementById('mu-out-pct');
+      if (elMuPct) elMuPct.innerText = `(${muOutPct}%)`;
+
+      animateCountUp('kpi-aktif', totalAktif);
+      animateCountUp('kpi-in', totalIn);
+      animateCountUp('kpi-out', totalOut);
+      animateCountUp('kpi-training', totalTraining);
+
+      animateCountUp('sg-aktif', sgAktif);
+      animateCountUp('sg-in', parseInt(getFlexProp(sg, 'in')) || 0);
+      animateCountUp('sg-out', sgOut);
+      animateCountUp('sg-training', sgTrn);
+
+      animateCountUp('mu-aktif', muAktif);
+      animateCountUp('mu-in', parseInt(getFlexProp(mu, 'in')) || 0);
+      animateCountUp('mu-out', muOut);
+      animateCountUp('mu-training', muTrn);
+    }
+
+    function animateCountUp(elementId, targetValue) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+
+      const startValue = parseInt(el.innerText.replace(/,/g, '')) || 0;
+      if (startValue === targetValue) return;
+
+      const duration = 1000;
+      const startTime = performance.now();
+
+      function updateNumber(currentTime) {
+        const elapsed = currentTime - startTime;
+        if (elapsed >= duration) {
+          el.innerText = targetValue.toLocaleString('id-ID');
+          return;
+        }
+        const progress = elapsed / duration;
+        const currentNumber = Math.floor(startValue + (targetValue - startValue) * progress);
+        el.innerText = currentNumber.toLocaleString('id-ID');
+        requestAnimationFrame(updateNumber);
+      }
+
+      requestAnimationFrame(updateNumber);
+    }
+
+    function formatVal(val) {
+      if (val === null || val === undefined || val === '' || val === '1970-01-01T00:00:00.000Z') return '-';
+      return String(val).trim();
+    }
+
+    function formatDateDisplay(dateVal) {
+      const d = parseDateRobust(dateVal);
+      if (!d) return formatVal(dateVal);
+
+      const day = String(d.getDate()).padStart(2, '0');
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      return `${day} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
